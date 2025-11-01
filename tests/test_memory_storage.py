@@ -13,6 +13,16 @@ def test_write_and_read_roundtrip(storage: InMemoryStorage) -> None:
     assert storage.read("hello") == b"world"
 
 
+def test_write_rejects_empty_key(storage: InMemoryStorage) -> None:
+    with pytest.raises(ValueError):
+        storage.write("", b"data")
+
+
+def test_write_rejects_non_string_key(storage: InMemoryStorage) -> None:
+    with pytest.raises(TypeError):
+        storage.write(123, b"data")  # type: ignore[arg-type]
+
+
 def test_write_accepts_objects_that_support_bytes(storage: InMemoryStorage) -> None:
     class Dummy:
         def __bytes__(self) -> bytes:
@@ -33,6 +43,11 @@ def test_delete_missing_key_raises(storage: InMemoryStorage) -> None:
         storage.delete("missing")
 
 
+def test_exists_validates_key_type(storage: InMemoryStorage) -> None:
+    with pytest.raises(TypeError):
+        storage.exists(123)  # type: ignore[arg-type]
+
+
 def test_iter_keys_supports_prefix(storage: InMemoryStorage) -> None:
     storage.write("foo/a", b"1")
     storage.write("foo/b", b"2")
@@ -40,3 +55,10 @@ def test_iter_keys_supports_prefix(storage: InMemoryStorage) -> None:
 
     assert set(storage.iter_keys()) == {"foo/a", "foo/b", "bar/c"}
     assert set(storage.iter_keys(prefix="foo/")) == {"foo/a", "foo/b"}
+
+
+def test_iter_keys_rejects_non_string_prefix(storage: InMemoryStorage) -> None:
+    storage.write("key", b"value")
+
+    with pytest.raises(TypeError):
+        list(storage.iter_keys(prefix=123))  # type: ignore[arg-type]

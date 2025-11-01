@@ -12,7 +12,9 @@ The `storage` package defines an abstract :class:`Storage` interface that expose
 - `exists(key: str) -> bool`
 - `iter_keys(prefix: str | None = None) -> Iterable[str]`
 
-An `InMemoryStorage` implementation is provided for quick experimentation or testing.
+An `InMemoryStorage` implementation is provided for quick experimentation or testing. The implementation validates that keys are
+non-empty strings and that data objects expose a bytes representation, raising informative exceptions when the contract is
+violated.
 
 ## Running the tests
 
